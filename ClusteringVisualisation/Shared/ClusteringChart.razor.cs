@@ -54,7 +54,38 @@ namespace ClusteringVisualisation.Shared
 
         public void NextStep()
         {
+            foreach(var point in this.points)
+            {
+                float minDistance = float.MaxValue;
+                foreach(var cluster in this.clusterCenters)
+                {
+                    float distance = (cluster.Coordinates - point.Coordinates).LengthSquared();
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        point.ClusterIndex = cluster.ClusterIndex;
+                    }
+                }
+            }
+            foreach(var cluster in this.clusterCenters)
+            {
+                int pointsOfThisCluster = 0;
+                Vector2 coordinatesSum = Vector2.Zero;
+                foreach(var point in this.points)
+                {
+                    if (point.ClusterIndex == cluster.ClusterIndex)
+                    {
+                        pointsOfThisCluster++;
+                        coordinatesSum += point.Coordinates;
+                    }
+                }
+                if (pointsOfThisCluster != 0)
+                {
+                    cluster.Coordinates = coordinatesSum / pointsOfThisCluster;
+                }
+            }
 
+            StateHasChanged();
         }
 
         private class Point
