@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using ClusteringVisualisation.Clustering;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -8,32 +9,17 @@ using System.Threading.Tasks;
 
 namespace ClusteringVisualisation.Shared
 {
-    public partial class ClusteringChart
+    public partial class ClusteringChart : IClusteringMethod
     {
         private Point[] points = new Point[0];
 
         private Point[] clusterCenters = new Point[0];
 
-        public void StartClustering(int pointsCount)
+        public void StartClustering(IEnumerable<Point> points)
         {
-            this.points = CreatePoints(pointsCount);
+            this.points = points.ToArray();
             this.clusterCenters = CreateClusterCenters(4);
             StateHasChanged();
-        }
-
-        private static Point[] CreatePoints(int count)
-        {
-            var points = new Point[count];
-            var rng = new Random();
-            for (int i = 0; i < points.Length; i++)
-            {
-                points[i] = new Point();
-                points[i].Coordinates = new Vector2(
-                    x: (float)rng.NextDouble(),
-                    y: (float)rng.NextDouble()
-                );
-            }
-            return points;
         }
 
         private static Point[] CreateClusterCenters(int clustersCount)
@@ -86,31 +72,6 @@ namespace ClusteringVisualisation.Shared
             }
 
             StateHasChanged();
-        }
-
-        private class Point
-        {
-            private static readonly string[] clusterColors = new[]
-            {
-                "#000000",
-                "#ff0000",
-                "#00ff00",
-                "#0000ff",
-                "#ffff00"
-            };
-
-            public Vector2 Coordinates;
-
-            public int ClusterIndex;
-
-            public string GetPointStyle()
-            {
-                var culture = CultureInfo.InvariantCulture;
-                return $"left: {(this.Coordinates.X * 100f).ToString(culture)}%;" +
-                        $"top: {(this.Coordinates.Y * 100f).ToString(culture)}%;" +
-                        $"animation-delay: {this.Coordinates.Length().ToString(culture)}s;" +
-                        $"background-color: {clusterColors[this.ClusterIndex]}";
-            }
         }
     }
 }

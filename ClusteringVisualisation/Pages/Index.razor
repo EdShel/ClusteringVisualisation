@@ -1,4 +1,6 @@
 ﻿@page "/"
+@using Clustering
+@using System.Numerics
 
 <div style="display: flex; flex-flow: column; height: 100%">
     <div>
@@ -6,8 +8,22 @@
     </div>
     <div style="flex-grow: 1">
         <div style="display: flex; width: 100%; height: 100%">
-            <ClusteringChart @ref="clusteringChart"></ClusteringChart>
+            @if (this.methodIndex == 0)
+            {
+                <ClusteringChart @ref="this.clusteringMethod"></ClusteringChart>
+            }
+            else
+            {
+                <Dendrogram @ref="this.clusteringMethod"></Dendrogram>
+            }
             <div style="background: gray">
+                <div>
+                    <label>Clustering method</label>
+                    <select @bind="this.methodIndex">
+                        <option value="0">K-means</option>
+                        <option value="1">KNN (dendrogram)</option>
+                    </select>
+                </div>
                 <div>
                     <label>Points count: @this.pointsCount</label>
                     <input type="range" min="1" max="500" value="@pointsCount" @onchange="OnPointsCountChanged" />
@@ -24,7 +40,9 @@
 @code {
     private int pointsCount = 100;
 
-    private ClusteringChart clusteringChart;
+    private int methodIndex = 0;
+
+    private IClusteringMethod clusteringMethod;
 
     private void OnPointsCountChanged(ChangeEventArgs e)
     {
@@ -34,6 +52,22 @@
 
     private void StartClustering()
     {
-        clusteringChart.StartClustering(this.pointsCount);
+        var points = CreatePoints(this.pointsCount);
+        clusteringMethod.StartClustering(points);
+    }
+
+    private static Point[] CreatePoints(int count)
+    {
+        var points = new Point[count];
+        var rng = new Random();
+        for (int i = 0; i < points.Length; i++)
+        {
+            points[i] = new Point();
+            points[i].Coordinates = new Vector2(
+                x: (float)rng.NextDouble(),
+                y: (float)rng.NextDouble()
+            );
+        }
+        return points;
     }
 }
