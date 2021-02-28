@@ -5,6 +5,35 @@
         Hello, header
     </div>
     <div style="flex-grow: 1">
-        <ClusteringChart PointsCount="100"></ClusteringChart>
+        <div style="display: flex; width: 100%; height: 100%">
+            <ClusteringChart @ref="clusteringChart"></ClusteringChart>
+            <div style="background: gray">
+                <div>
+                    <label>Points count: @this.pointsCount</label>
+                    <input type="range" min="1" max="500" value="@pointsCount" @onchange="OnPointsCountChanged" />
+                </div>
+                <div>
+                    <button @onclick="StartClustering">Cluster</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
+
+@code {
+    private int pointsCount = 100;
+
+    private ClusteringChart clusteringChart;
+
+    private void OnPointsCountChanged(ChangeEventArgs e)
+    {
+        this.pointsCount = int.Parse(e.Value?.ToString() ?? "0");
+        StartClustering();
+    }
+
+    private void StartClustering()
+    {
+        clusteringChart.StartClustering(this.pointsCount);
+    }
+}
