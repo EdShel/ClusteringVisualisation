@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 
@@ -7,29 +8,36 @@ namespace ClusteringVisualisation.Clustering
     public interface IClusteringMethod
     {
         void StartClustering(IEnumerable<Point> points);
+
     }
 
     public interface ICluster
     {
         Vector2 Coordinates { get; }
 
-        IEnumerable<ICluster> InnerClusters { get; }
+        float Distance { get; }
+
+        ICluster LeftCluster { get; }
+
+        ICluster RightCluster { get; }
     }
 
     public class Cluster : ICluster
     {
         private Vector2? coordinates;
 
-        public Cluster(ICluster left, ICluster right)
+        public Cluster(ICluster left, ICluster right, float distance)
         {
-            this.Left = left;
-            this.Right = right;
+            this.LeftCluster = left;
+            this.RightCluster = right;
+            this.Distance = distance;
         }
 
-        public ICluster Left { get; }
+        public ICluster LeftCluster { get; }
 
-        public ICluster Right { get; }
+        public ICluster RightCluster { get; }
 
+        // TODO: change it to use avg of leaves and not top-level clusters
         public Vector2 Coordinates
         {
             get
@@ -38,19 +46,12 @@ namespace ClusteringVisualisation.Clustering
                 {
                     return this.coordinates.Value;
                 }
-                this.coordinates = (Left.Coordinates + Right.Coordinates) / 2f;
+                this.coordinates = (LeftCluster.Coordinates + RightCluster.Coordinates) / 2f;
                 return this.coordinates.Value;
             }
         }
 
-        public IEnumerable<ICluster> InnerClusters
-        {
-            get
-            {
-                yield return this.Left;
-                yield return this.Right;
-            }
-        }
+        public float Distance { get; }
     }
 
     public class LeafCluster : ICluster
@@ -66,7 +67,11 @@ namespace ClusteringVisualisation.Clustering
 
         public Vector2 Coordinates => this.point.Coordinates;
 
-        public IEnumerable<ICluster> InnerClusters => Enumerable.Empty<ICluster>();
+        public float Distance => 0f;
+
+        public ICluster LeftCluster => null;
+
+        public ICluster RightCluster => null;
     }
 
     public class DendrogramBuilder
@@ -87,7 +92,10 @@ namespace ClusteringVisualisation.Clustering
             FindMinDistanceClustersIndices(distanceMatrix, out int firstIndex, out int secondIndex);
             ICluster firstCluster = clusters[firstIndex];
             ICluster secondCluster = clusters[secondIndex];
-            ICluster commonCluster = new Cluster(firstCluster, secondCluster);
+            ICluster commonCluster = new Cluster(
+                firstCluster, 
+                secondCluster, 
+                Vector2.Distance(firstCluster.Coordinates, secondCluster.Coordinates));
 
             clusters[firstIndex] = commonCluster;
             clusters.RemoveAt(secondIndex);
@@ -102,7 +110,7 @@ namespace ClusteringVisualisation.Clustering
                 var row = rows[i];
                 for (int j = 0; j < row.Length; j++)
                 {
-                    row[i] = Vector2.DistanceSquared(clusters[i].Coordinates, clusters[j].Coordinates);
+                    row[j] = Vector2.DistanceSquared(clusters[i].Coordinates, clusters[j].Coordinates);
                 }
             }
             return rows;

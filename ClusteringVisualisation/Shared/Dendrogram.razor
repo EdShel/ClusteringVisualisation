@@ -1,3 +1,22 @@
 ﻿<div class="box">
-    <h3>Dendrogram...</h3>
+    @{ 
+        var hLine = new HorizontalLine(0.1f, 0.9f, 0.5f);
+        var vLine = new VerticalLine(0.9f, 0.1f, 0.5f);
+    }
+
+    <div class="@hLine.GetClass()" style="@hLine.GetStyle()"></div>
+    <div class="@vLine.GetClass()" style="@vLine.GetStyle()"></div>
+
+    @if (this.topCluster != null)
+    {
+        int width = GetClustersTotal(this.topCluster);
+        int height = GetHeight(this.topCluster);
+
+        <span>@width x @height</span>
+
+    }
+    else
+    {
+        <span>Hell no, null</span>
+    }
 </div>
