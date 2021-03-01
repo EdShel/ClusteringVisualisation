@@ -13,7 +13,6 @@ namespace ClusteringVisualisation.Shared
 
         public void StartClustering(IEnumerable<Point> points)
         {
-            Console.WriteLine("Started clustering");
             this.topCluster = DendrogramBuilder.ClusterPoints(points);
             this.StateHasChanged();
         }
@@ -36,10 +35,10 @@ namespace ClusteringVisualisation.Shared
             return 1 + Math.Max(GetHeight(cluster.LeftCluster), GetHeight(cluster.RightCluster));
         }
 
-        private IEnumerable<ILine> GetDendrogramLines()
+        private IEnumerable<IDendrogramElement> GetDendrogramLines()
         {
             return new DendrogramLinesGenerator(GetClustersTotal(this.topCluster), this.topCluster.Distance)
-                .GetDendrogramLines(this.topCluster, this.topCluster.Distance)
+                .GetDendrogramElements(this.topCluster, this.topCluster.Distance)
                 .Where(l => l != null);
         }
 
@@ -57,18 +56,28 @@ namespace ClusteringVisualisation.Shared
                 this.maxDistance = maxDistance;
             }
 
-            public IEnumerable<ILine> GetDendrogramLines(ICluster cluster, float callerDistance)
+            public IEnumerable<IDendrogramElement> GetDendrogramElements(ICluster cluster, float callerDistance)
             {
                 bool isLeaf = cluster.LeftCluster == null;
                 if (isLeaf)
                 {
+                    yield return new LeafCluster(
+                        x: this.x / this.maxX,
+                        y: cluster.Distance / this.maxDistance
+                    );
+                    yield return new VerticalLine(
+                        topY: callerDistance / this.maxDistance,
+                        bottomY: cluster.Distance / this.maxDistance,
+                        x: this.x / this.maxX
+                    );
+                    yield return null;
                     yield break;
                 }
 
                 int leftClusterX = this.x;
                 int rightClusterX = this.x;
 
-                foreach (var leftClusterLine in GetDendrogramLines(cluster.LeftCluster, cluster.Distance))
+                foreach (var leftClusterLine in GetDendrogramElements(cluster.LeftCluster, cluster.Distance))
                 {
                     if (leftClusterLine == null)
                     {
@@ -90,7 +99,7 @@ namespace ClusteringVisualisation.Shared
                 );
                 this.x++;
 
-                foreach (var rightClusterLine in GetDendrogramLines(cluster.LeftCluster, cluster.Distance))
+                foreach (var rightClusterLine in GetDendrogramElements(cluster.RightCluster, cluster.Distance))
                 {
                     if (rightClusterLine == null)
                     {
@@ -115,14 +124,38 @@ namespace ClusteringVisualisation.Shared
             return $"{(value * 100f).ToString(CultureInfo.InvariantCulture)}%";
         }
 
-        private interface ILine
+        private interface IDendrogramElement
         {
             string GetClass();
 
             string GetStyle();
         }
 
-        private class VerticalLine : ILine
+        private class LeafCluster : IDendrogramElement
+        {
+            private float x;
+
+            private float y;
+
+            public LeafCluster(float x, float y)
+            {
+                this.x = x;
+                this.y = y;
+            }
+
+            public string GetClass()
+            {
+                return "point";
+            }
+
+            public string GetStyle()
+            {
+                return $"left: {ToPercent(x)};" +
+                       $"bottom: {ToPercent(y)}";
+            }
+        }
+
+        private class VerticalLine : IDendrogramElement
         {
             private float topY;
 
@@ -150,7 +183,7 @@ namespace ClusteringVisualisation.Shared
             }
         }
 
-        private class HorizontalLine : ILine
+        private class HorizontalLine : IDendrogramElement
         {
             private float leftX;
 
