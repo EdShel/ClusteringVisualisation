@@ -1,19 +1,11 @@
 ﻿<div class="box">
-    @{ 
-        var hLine = new HorizontalLine(0.1f, 0.9f, 0.5f);
-        var vLine = new VerticalLine(0.9f, 0.1f, 0.5f);
-    }
-
-    <div class="@hLine.GetClass()" style="@hLine.GetStyle()"></div>
-    <div class="@vLine.GetClass()" style="@vLine.GetStyle()"></div>
 
     @if (this.topCluster != null)
     {
-        int width = GetClustersTotal(this.topCluster);
-        int height = GetHeight(this.topCluster);
-
-        <span>@width x @height</span>
-
+        @foreach(var line in GetDendrogramLines())
+        {
+            <div class="@line.GetClass()" style="@line.GetStyle()"></div>
+        }
     }
     else
     {

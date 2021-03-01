@@ -36,16 +36,90 @@ namespace ClusteringVisualisation.Shared
             return 1 + Math.Max(GetHeight(cluster.LeftCluster), GetHeight(cluster.RightCluster));
         }
 
-        private interface ILine
+        private IEnumerable<ILine> GetDendrogramLines()
         {
-            string GetClass();
+            return new DendrogramLinesGenerator(GetClustersTotal(this.topCluster), this.topCluster.Distance)
+                .GetDendrogramLines(this.topCluster, this.topCluster.Distance)
+                .Where(l => l != null);
+        }
 
-            string GetStyle();
+        private class DendrogramLinesGenerator
+        {
+            private int x;
+
+            private readonly float maxX;
+
+            private readonly float maxDistance;
+
+            public DendrogramLinesGenerator(float maxX, float maxDistance)
+            {
+                this.maxX = maxX;
+                this.maxDistance = maxDistance;
+            }
+
+            public IEnumerable<ILine> GetDendrogramLines(ICluster cluster, float callerDistance)
+            {
+                bool isLeaf = cluster.LeftCluster == null;
+                if (isLeaf)
+                {
+                    yield break;
+                }
+
+                int leftClusterX = this.x;
+                int rightClusterX = this.x;
+
+                foreach (var leftClusterLine in GetDendrogramLines(cluster.LeftCluster, cluster.Distance))
+                {
+                    if (leftClusterLine == null)
+                    {
+                        leftClusterX = this.x;
+                    }
+                    else
+                    {
+                        yield return leftClusterLine;
+                    }
+                }
+
+                this.x++;
+                yield return null;
+
+                yield return new VerticalLine(
+                    topY: callerDistance / this.maxDistance,
+                    bottomY: cluster.Distance / this.maxDistance,
+                    x: this.x / this.maxX
+                );
+                this.x++;
+
+                foreach (var rightClusterLine in GetDendrogramLines(cluster.LeftCluster, cluster.Distance))
+                {
+                    if (rightClusterLine == null)
+                    {
+                        rightClusterX = this.x;
+                    }
+                    else
+                    {
+                        yield return rightClusterLine;
+                    }
+                }
+
+                yield return new HorizontalLine(
+                    leftX: leftClusterX / this.maxX,
+                    rightX: rightClusterX / this.maxX,
+                    y: cluster.Distance / this.maxDistance
+                );
+            }
         }
 
         private static string ToPercent(float value)
         {
             return $"{(value * 100f).ToString(CultureInfo.InvariantCulture)}%";
+        }
+
+        private interface ILine
+        {
+            string GetClass();
+
+            string GetStyle();
         }
 
         private class VerticalLine : ILine
