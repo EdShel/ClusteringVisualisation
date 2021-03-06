@@ -24,4 +24,5 @@
     width: 8px;
     height: 8px;
     border-radius: 4px;
+    transform: translate(-4px, 0)
 }

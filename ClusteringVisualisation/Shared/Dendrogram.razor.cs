@@ -92,6 +92,11 @@ namespace ClusteringVisualisation.Shared
                 this.x++;
                 yield return null;
 
+                if (callerDistance < cluster.Distance)
+                {
+                    Console.WriteLine($"WTF: {callerDistance} is not > than {cluster.Distance}");
+                }
+
                 yield return new VerticalLine(
                     topY: callerDistance / this.maxDistance,
                     bottomY: cluster.Distance / this.maxDistance,

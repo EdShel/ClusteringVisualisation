@@ -14,7 +14,7 @@ namespace ClusteringVisualisation.Clustering
 
     public interface ICluster
     {
-        Vector2 Coordinates { get; }
+        //Vector2 Coordinates { get; }
 
         float Distance { get; }
 
@@ -37,20 +37,6 @@ namespace ClusteringVisualisation.Clustering
         public ICluster LeftCluster { get; }
 
         public ICluster RightCluster { get; }
-
-        // TODO: change it to use avg of leaves and not top-level clusters
-        public Vector2 Coordinates
-        {
-            get
-            {
-                if (coordinates.HasValue)
-                {
-                    return this.coordinates.Value;
-                }
-                this.coordinates = (LeftCluster.Coordinates + RightCluster.Coordinates) / 2f;
-                return this.coordinates.Value;
-            }
-        }
 
         public float Distance { get; }
     }
@@ -80,8 +66,8 @@ namespace ClusteringVisualisation.Clustering
         public static ICluster ClusterPoints(IEnumerable<Point> points)
         {
             var timer = Stopwatch.StartNew();
+            IList<IList<float>> distanceMatrix = BuildDistanceMatrix(points.ToArray());
             IList<ICluster> clusters = points.Select(p => (ICluster)new LeafCluster(p)).ToList();
-            IList<IList<float>> distanceMatrix = BuildDistanceMatrix(clusters);
             while (clusters.Count > 1)
             {
                 Cluster(clusters, distanceMatrix);
@@ -90,16 +76,16 @@ namespace ClusteringVisualisation.Clustering
             return clusters.Single();
         }
 
-        private static IList<IList<float>> BuildDistanceMatrix(IList<ICluster> clusters)
+        private static IList<IList<float>> BuildDistanceMatrix(IList<Point> points)
         {
-            IList<IList<float>> rows = new List<IList<float>>(clusters.Count);
-            for (int i = 0; i < clusters.Count; i++)
+            IList<IList<float>> rows = new List<IList<float>>(points.Count);
+            for (int i = 0; i < points.Count; i++)
             {
                 var row = new List<float>(i);
                 rows.Add(row);
                 for (int j = 0; j < i; j++)
                 {
-                    row.Add(Vector2.DistanceSquared(clusters[i].Coordinates, clusters[j].Coordinates));
+                    row.Add(Vector2.DistanceSquared(points[i].Coordinates, points[j].Coordinates));
                 }
             }
             return rows;
@@ -113,12 +99,12 @@ namespace ClusteringVisualisation.Clustering
             ICluster commonCluster = new Cluster(
                 firstCluster, 
                 secondCluster, 
-                Vector2.Distance(firstCluster.Coordinates, secondCluster.Coordinates));
+                distanceMatrix[secondIndex][firstIndex]);
 
             clusters[firstIndex] = commonCluster;
             clusters.RemoveAt(secondIndex);
+            RecalculateDistancesToMergedCluster(distanceMatrix, firstIndex, secondIndex);
             RemoveClusterFromDistanceMatrix(distanceMatrix, secondIndex);
-            RecalculateDistancesForClusterWithIndex(clusters, distanceMatrix, firstIndex);
         }
 
         private static void FindNearestClustersIndices(IList<IList<float>> distanceMatrix, out int firstIndex, out int secondIndex)
@@ -153,22 +139,31 @@ namespace ClusteringVisualisation.Clustering
             distanceMatrix.RemoveAt(clusterIndex);
         }
 
-        private static void RecalculateDistancesForClusterWithIndex(
-            IList<ICluster> clusters, 
+        private static void RecalculateDistancesToMergedCluster(
             IList<IList<float>> distanceMatrix, 
-            int clusterIndex)
+            int replaceClusterIndex,
+            int deleteClusterIndex)
         {
-            var clusterRow = distanceMatrix[clusterIndex];
-            Vector2 clusterCoord = clusters[clusterIndex].Coordinates;
-            for(int i = 0; i < clusterRow.Count; i++)
+            for(int i = 0; i < replaceClusterIndex; i++)
             {
-                clusterRow[i] = Vector2.DistanceSquared(clusterCoord, clusters[i].Coordinates);
+                distanceMatrix[replaceClusterIndex][i] = Math.Min(
+                    distanceMatrix[replaceClusterIndex][i],
+                    distanceMatrix[deleteClusterIndex][i]
+                );
             }
-
-            for(int i = clusterIndex + 1; i < distanceMatrix.Count; i++)
+            for(int i = replaceClusterIndex + 1; i < deleteClusterIndex; i++)
             {
-                var row = distanceMatrix[i];
-                row[clusterIndex] = Vector2.DistanceSquared(clusterCoord, clusters[i].Coordinates); 
+                distanceMatrix[i][replaceClusterIndex] = Math.Min(
+                    distanceMatrix[i][replaceClusterIndex],
+                    distanceMatrix[deleteClusterIndex][i]
+                );
+            }
+            for(int i = deleteClusterIndex + 1; i < distanceMatrix.Count; i++)
+            {
+                distanceMatrix[i][replaceClusterIndex] = Math.Min(
+                    distanceMatrix[i][replaceClusterIndex],
+                    distanceMatrix[i][deleteClusterIndex]
+                );
             }
         }
     }
