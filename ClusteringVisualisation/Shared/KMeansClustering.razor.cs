@@ -43,7 +43,7 @@ namespace ClusteringVisualisation.Shared
 
         private void RandomizeCentroids()
         {
-            this.clusterer.RandomizeCentroids(this.clustersCount);
+            this.clusterer.ResetAndRandomizeCentroids(this.clustersCount);
             StateHasChanged();
         }
 
