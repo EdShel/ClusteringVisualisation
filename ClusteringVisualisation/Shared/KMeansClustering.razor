@@ -7,17 +7,20 @@
         <button @onclick="this.RandomizeCentroids">Randomize centroids</button>
         <button @onclick="this.NextStep">Next step</button>
     </div>
-    <div class="status-box">
-        Iteration #@clusterizationIteration
-    </div>
-    <div class="points-container">
-        @for (int i = 0; i < this.points.Length; i++)
-        {
-            <div class="point" style="@GetPointStyle(this.points[i])"></div>
-        }
-        @for (int i = 0; i < this.clusterCenters.Length; i++)
-        {
-            <div class="point cluster-center" style="@GetPointStyle(this.clusterCenters[i])"></div>
-        }
-    </div>
+    @if (clusterer != null)
+    {
+        <div class="status-box">
+            Iteration #@clusterer.ClusterizationIteration
+        </div>
+        <div class="points-container">
+            @foreach (var p in clusterer.Points)
+            {
+                <div class="point" style="@GetPointStyle(p)"></div>
+            }
+            @foreach (var c in clusterer.Centroids)
+            {
+                <div class="point cluster-center" style="@GetPointStyle(c)"></div>
+            }
+        </div>
+    }
 </div>

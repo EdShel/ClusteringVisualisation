@@ -88,9 +88,9 @@ namespace ClusteringVisualisation.Pages
 
         protected override void OnAfterRender(bool firstRender)
         {
-            if (needToClusterAfterRender)
+            if (this.needToClusterAfterRender)
             {
-                needToClusterAfterRender = false;
+                this.needToClusterAfterRender = false;
                 StartClustering();
             }
         }
