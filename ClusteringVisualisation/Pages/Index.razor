@@ -16,17 +16,38 @@
             {
                 <Dendrogram @ref="this.clusteringMethod"></Dendrogram>
             }
-            <div style="background: gray">
+            <div class="points-panel">
+                <h3>Clustering method</h3>
                 <div>
-                    <label>Clustering method</label>
-                    <select @bind="this.methodIndex">
+                    <select value="@methodIndex" @onchange="OnClusteringMethodChanged">
                         <option value="0">K-means</option>
                         <option value="1">Single-linkage (dendrogram)</option>
                     </select>
                 </div>
+
+                <h3>Points</h3>
+                <div class="point-count-select">
+                    <div>
+                        <label for="pointsScroller">Points count</label>
+                        <input type="number" min="1" max="500" step="1" value="@pointsCount" @onchange="OnPointsCountChanged" />
+                    </div>
+                    <input id="pointsScroller" type="range" min="1" max="500" value="@pointsCount" @onchange="OnPointsCountChanged" />
+                </div>
+                <div class="new-line">
+                    <label for="clustersCountScroller">Clusters count: @clustersCount</label>
+                    <input id="clustersCountScroller" type="range" min="1" max="10" step="1" value="@clustersCount" @onchange="OnClustersCountChanged" />
+                </div>
+                <div class="new-line">
+                    <label for="stdevScroller">Clusters StdDev: @stdev</label>
+                    <input id="stdevScroller" type="range" min="0" max="1" step="0.05" value="@stdev.ToString(System.Globalization.CultureInfo.InvariantCulture)" @onchange="OnStdevChanged" />
+                </div>
+                <div class="new-line">
+                    <label for="areaScroller">Area size: @areaSize</label>
+                    <input id="areaScroller" type="range" min="2" max="10" step="0.1" value="@areaSize.ToString(System.Globalization.CultureInfo.InvariantCulture)" @onchange="OnAreaSizeChanged" />
+                </div>
                 <div>
-                    <label>Points count: @this.pointsCount</label>
-                    <input type="range" min="1" max="500" value="@pointsCount" @onchange="OnPointsCountChanged" />
+                    <label for="randomSeedInput">Random seed</label>
+                    <input id="randomSeedInput" type="number" min="0" max="100500" step="1" value="@randomSeed" @onchange="OnRandomSeedChanged" />
                 </div>
                 <div>
                     <button @onclick="StartClustering">Cluster</button>
@@ -38,11 +59,28 @@
 </div>
 
 @code {
-    private int pointsCount = 100;
+
+    private bool needToClusterAfterRender = true;
 
     private int methodIndex = 0;
 
     private IClusteringMethod clusteringMethod;
+
+    private int pointsCount = 100;
+
+    private int clustersCount = 4;
+
+    private float stdev = 0.75f;
+
+    private float areaSize = 10f;
+
+    private int randomSeed = 0;
+
+    private void OnClusteringMethodChanged(ChangeEventArgs e)
+    {
+        this.methodIndex = int.Parse(e.Value?.ToString() ?? "0");
+        needToClusterAfterRender = true;
+    }
 
     private void OnPointsCountChanged(ChangeEventArgs e)
     {
@@ -50,26 +88,64 @@
         StartClustering();
     }
 
+    private void OnClustersCountChanged(ChangeEventArgs e)
+    {
+        this.clustersCount = int.Parse(e.Value?.ToString() ?? "0");
+        StartClustering();
+    }
+
+    private void OnStdevChanged(ChangeEventArgs e)
+    {
+        this.stdev = float.Parse(e.Value?.ToString() ?? "0", System.Globalization.CultureInfo.InvariantCulture);
+        StartClustering();
+    }
+
+    private void OnAreaSizeChanged(ChangeEventArgs e)
+    {
+        this.areaSize = float.Parse(e.Value?.ToString() ?? "0", System.Globalization.CultureInfo.InvariantCulture);
+        StartClustering();
+    }
+
+    private void OnRandomSeedChanged(ChangeEventArgs e)
+    {
+        this.randomSeed = int.Parse(e.Value?.ToString() ?? "0");
+        StartClustering();
+    }
+
     private void StartClustering()
     {
-        var points = CreatePoints(this.pointsCount);
+        var points = CreatePoints();
         clusteringMethod.StartClustering(points);
     }
 
-    private static Point[] CreatePoints(int count)
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (needToClusterAfterRender)
+        {
+            needToClusterAfterRender = false;
+            StartClustering();
+        }
+    }
+
+    private Point[] CreatePoints()
     {
         return new GaussianPointsGenerator(
-            rng: new Random(),
-            stdev: 0.75,
-            area: new System.Drawing.RectangleF(-5f, -5f, 10f, 10f),
-            clustersCount: 4
+            rng: new Random(this.randomSeed),
+            stdev: this.stdev,
+            area: new System.Drawing.RectangleF(
+                x: -this.areaSize / 2f,
+                y: -this.areaSize / 2f,
+                width: this.areaSize,
+                height: this.areaSize
+            ),
+            clustersCount: this.clustersCount
         )
-        .GeneratePoints(count)
+        .GeneratePoints(this.pointsCount)
         .Select(p => new Point
         {
             Coordinates = new Vector2(
-                x: p.X.Map01(-5f, 5f),
-                y: p.Y.Map01(-5f, 5f)
+                x: p.X.Map01(-this.areaSize / 2f, this.areaSize / 2f),
+                y: p.Y.Map01(-this.areaSize / 2f, this.areaSize / 2f)
             )
         })
         .ToArray();
