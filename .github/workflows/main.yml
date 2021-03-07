@@ -16,7 +16,7 @@ jobs:
         dotnet-version: 3.1
         
     - name: Publish .NET Core Project
-      run: dotnet publish ClusteringVisualisation.csproj -c Release -o release --nologo
+      run: dotnet publish ClusteringVisualisation/ClusteringVisualisation.csproj -c Release -o release --nologo
       
     - name: Commit wwwroot to Github Pages
       uses: JamesIves/github-pages-deploy-action@3.7.1
