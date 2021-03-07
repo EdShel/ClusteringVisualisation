@@ -61,10 +61,17 @@ namespace ClusteringVisualisation.Clustering
         private static readonly string[] clusterColors = new[]
         {
             "#000000",
-            "#ff0000",
-            "#00ff00",
-            "#0000ff",
-            "#ffff00"
+            "#FF3838",
+            "#FFCF38",
+            "#9CFF38",
+            "#38FFF3",
+            "#387BFF",
+            "#7438FF",
+            "#CF38FF",
+            "#FF38E1",
+            "#38FFB1",
+            "#A396AA",
+            "#8DE2A8"
         };
 
         public Vector2 Coordinates;

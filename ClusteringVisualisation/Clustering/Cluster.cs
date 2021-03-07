@@ -8,14 +8,11 @@ namespace ClusteringVisualisation.Clustering
 {
     public interface IClusteringMethod
     {
-        void StartClustering(IEnumerable<Point> points);
-
+        void StartClustering(IEnumerable<Vector2> points);
     }
 
     public interface ICluster
     {
-        //Vector2 Coordinates { get; }
-
         float Distance { get; }
 
         ICluster LeftCluster { get; }
@@ -25,8 +22,6 @@ namespace ClusteringVisualisation.Clustering
 
     public class Cluster : ICluster
     {
-        private Vector2? coordinates;
-
         public Cluster(ICluster left, ICluster right, float distance)
         {
             this.LeftCluster = left;
@@ -43,16 +38,16 @@ namespace ClusteringVisualisation.Clustering
 
     public class LeafCluster : ICluster
     {
-        private readonly Point point;
+        private readonly Vector2 coordinates;
 
-        public LeafCluster(Point point)
+        public LeafCluster(Vector2 coordinates)
         {
-            this.point = point;
+            this.coordinates = coordinates;
         }
 
         public int ClusterIndex { get; set; }
 
-        public Vector2 Coordinates => this.point.Coordinates;
+        public Vector2 Coordinates => this.coordinates;
 
         public float Distance => 0f;
 
@@ -63,7 +58,7 @@ namespace ClusteringVisualisation.Clustering
 
     public class DendrogramBuilder
     {
-        public static ICluster ClusterPoints(IEnumerable<Point> points)
+        public static ICluster ClusterPoints(IEnumerable<Vector2> points)
         {
             var timer = Stopwatch.StartNew();
             IList<IList<float>> distanceMatrix = BuildDistanceMatrix(points.ToArray());
@@ -72,11 +67,10 @@ namespace ClusteringVisualisation.Clustering
             {
                 Cluster(clusters, distanceMatrix);
             }
-            Console.WriteLine($"Time {timer.ElapsedMilliseconds / 1000f}s");
             return clusters.Single();
         }
 
-        private static IList<IList<float>> BuildDistanceMatrix(IList<Point> points)
+        private static IList<IList<float>> BuildDistanceMatrix(IList<Vector2> points)
         {
             IList<IList<float>> rows = new List<IList<float>>(points.Count);
             for (int i = 0; i < points.Count; i++)
@@ -85,7 +79,7 @@ namespace ClusteringVisualisation.Clustering
                 rows.Add(row);
                 for (int j = 0; j < i; j++)
                 {
-                    row.Add(Vector2.DistanceSquared(points[i].Coordinates, points[j].Coordinates));
+                    row.Add(Vector2.DistanceSquared(points[i], points[j]));
                 }
             }
             return rows;

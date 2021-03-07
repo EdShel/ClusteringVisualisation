@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Threading.Tasks;
+using System.Numerics;
 
 namespace ClusteringVisualisation.Shared
 {
@@ -11,10 +11,10 @@ namespace ClusteringVisualisation.Shared
     {
         private ICluster topCluster;
 
-        public void StartClustering(IEnumerable<Point> points)
+        public void StartClustering(IEnumerable<Vector2> points)
         {
             this.topCluster = DendrogramBuilder.ClusterPoints(points);
-            this.StateHasChanged();
+            StateHasChanged();
         }
 
         private int GetClustersTotal(ICluster cluster)
@@ -91,11 +91,6 @@ namespace ClusteringVisualisation.Shared
 
                 this.x++;
                 yield return null;
-
-                if (callerDistance < cluster.Distance)
-                {
-                    Console.WriteLine($"WTF: {callerDistance} is not > than {cluster.Distance}");
-                }
 
                 yield return new VerticalLine(
                     topY: callerDistance / this.maxDistance,

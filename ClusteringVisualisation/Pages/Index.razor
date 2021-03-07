@@ -3,9 +3,9 @@
 @using System.Numerics
 
 <div style="display: flex; flex-flow: column; height: 100%">
-    <div>
-        Hello, header
-    </div>
+    <header>
+        Clustering Visualisation - EdShel, 2021
+    </header>
     <div style="flex-grow: 1">
         <div style="display: flex; width: 100%; height: 100%">
             @if (this.methodIndex == 0)
@@ -48,9 +48,7 @@
                 <div>
                     <label for="randomSeedInput">Random seed</label>
                     <input id="randomSeedInput" type="number" min="@MIN_RNG_SEED" max="@MAX_RNG_SEED" step="1" value="@randomSeed" @onchange="OnRandomSeedChanged" />
-                </div>
-                <div>
-                    <button @onclick="StartClustering">Cluster</button>
+                    <button @onclick="RandomizeSeed">Randomize seed</button>
                 </div>
             </div>
         </div>
@@ -126,6 +124,12 @@
         }
     }
 
+    private void RandomizeSeed()
+    {
+        this.randomSeed = new Random().Next(MIN_RNG_SEED, MAX_RNG_SEED);
+        StartClustering();
+    }
+
     private void StartClustering()
     {
         var points = CreatePoints();
@@ -141,7 +145,7 @@
         }
     }
 
-    private Point[] CreatePoints()
+    private Vector2[] CreatePoints()
     {
         return new GaussianPointsGenerator(
             rng: new Random(this.randomSeed),
@@ -155,13 +159,11 @@
             clustersCount: this.clustersCount
         )
         .GeneratePoints(this.pointsCount)
-        .Select(p => new Point
-        {
-            Coordinates = new Vector2(
+        .Select(p => new Vector2(
                 x: p.X.Map01(-this.areaSize / 2f, this.areaSize / 2f),
                 y: p.Y.Map01(-this.areaSize / 2f, this.areaSize / 2f)
             )
-        })
+        )
         .ToArray();
     }
 }

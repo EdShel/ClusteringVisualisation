@@ -10,6 +10,26 @@
     left: 5px;
     display: flex;
     z-index: 1;
+    opacity: 0.5;
+    transition: opacity ease-out .25s;
+}
+
+    .toolbox button {
+        border: 0;
+        background-color: #0075ff;
+        color: #fff;
+        margin: 0 4px;
+    }
+
+.toolbox:hover {
+    opacity: 1;
+}
+
+.status-box {
+    position: absolute;
+    bottom: 5px;
+    left: 5px;
+    z-index: 1;
 }
 
 .points-container {

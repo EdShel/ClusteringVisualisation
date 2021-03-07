@@ -15,18 +15,43 @@ namespace ClusteringVisualisation.Shared
 
         private Point[] clusterCenters = new Point[0];
 
-        public void StartClustering(IEnumerable<Point> points)
+        private int clustersCount = 4;
+
+        private int clusterizationIteration = 0;
+
+        public void StartClustering(IEnumerable<Vector2> points)
         {
-            this.points = points.ToArray();
-            this.clusterCenters = CreateClusterCenters(4);
+            this.points = points.Select(p => new Point { Coordinates = p }).ToArray();
+            this.clusterCenters = CreateClusterCenters();
+            this.clusterizationIteration = 0;
             StateHasChanged();
         }
 
-        private static Point[] CreateClusterCenters(int clustersCount)
+        private void OnClustersCountChanged(ChangeEventArgs e)
         {
-            var points = new Point[clustersCount];
+            this.clustersCount = int.Parse(e.Value.ToString());
+            RandomizeCentroids();
+        }
+
+        private void RandomizeCentroids()
+        {
+            if (this.clusterizationIteration != 0)
+            {
+                this.clusterizationIteration = 0;
+                foreach(var p in this.points)
+                {
+                    p.ClusterIndex = 0;
+                }
+            }
+            this.clusterCenters = CreateClusterCenters();
+            StateHasChanged();
+        }
+
+        private Point[] CreateClusterCenters()
+        {
+            var points = new Point[this.clustersCount];
             var rng = new Random();
-            for(int i  = 0; i < points.Length; i++)
+            for (int i = 0; i < points.Length; i++)
             {
                 points[i] = new Point();
                 points[i].Coordinates = new Vector2(
@@ -38,12 +63,13 @@ namespace ClusteringVisualisation.Shared
             return points;
         }
 
-        public void NextStep()
+        private void NextStep()
         {
-            foreach(var point in this.points)
+            this.clusterizationIteration++;
+            foreach (var point in this.points)
             {
                 float minDistance = float.MaxValue;
-                foreach(var cluster in this.clusterCenters)
+                foreach (var cluster in this.clusterCenters)
                 {
                     float distance = (cluster.Coordinates - point.Coordinates).LengthSquared();
                     if (distance < minDistance)
@@ -53,11 +79,11 @@ namespace ClusteringVisualisation.Shared
                     }
                 }
             }
-            foreach(var cluster in this.clusterCenters)
+            foreach (var cluster in this.clusterCenters)
             {
                 int pointsOfThisCluster = 0;
                 Vector2 coordinatesSum = Vector2.Zero;
-                foreach(var point in this.points)
+                foreach (var point in this.points)
                 {
                     if (point.ClusterIndex == cluster.ClusterIndex)
                     {
