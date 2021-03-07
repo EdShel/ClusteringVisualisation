@@ -31,7 +31,7 @@
                         <label for="pointsScroller">Points count</label>
                         <input type="number" min="1" max="500" step="1" value="@pointsCount" @onchange="OnPointsCountChanged" />
                     </div>
-                    <input id="pointsScroller" type="range" min="1" max="500" value="@pointsCount" @onchange="OnPointsCountChanged" />
+                    <input id="pointsScroller" type="range" min="@MIN_POINTS" max="@MAX_POINTS" value="@pointsCount" @onchange="OnPointsCountChanged" />
                 </div>
                 <div class="new-line">
                     <label for="clustersCountScroller">Clusters count: @clustersCount</label>
@@ -47,7 +47,7 @@
                 </div>
                 <div>
                     <label for="randomSeedInput">Random seed</label>
-                    <input id="randomSeedInput" type="number" min="0" max="100500" step="1" value="@randomSeed" @onchange="OnRandomSeedChanged" />
+                    <input id="randomSeedInput" type="number" min="@MIN_RNG_SEED" max="@MAX_RNG_SEED" step="1" value="@randomSeed" @onchange="OnRandomSeedChanged" />
                 </div>
                 <div>
                     <button @onclick="StartClustering">Cluster</button>
@@ -59,6 +59,14 @@
 </div>
 
 @code {
+
+    private const int MIN_POINTS = 1;
+
+    private const int MAX_POINTS = 500;
+
+    private const int MIN_RNG_SEED = 0;
+
+    private const int MAX_RNG_SEED = 100500;
 
     private bool needToClusterAfterRender = true;
 
@@ -84,8 +92,11 @@
 
     private void OnPointsCountChanged(ChangeEventArgs e)
     {
-        this.pointsCount = int.Parse(e.Value?.ToString() ?? "0");
-        StartClustering();
+        if (int.TryParse(e.Value?.ToString() ?? "0", out int parsed))
+        {
+            this.pointsCount = Math.Clamp(parsed, MIN_POINTS, MAX_POINTS);
+            StartClustering();
+        }
     }
 
     private void OnClustersCountChanged(ChangeEventArgs e)
@@ -108,8 +119,11 @@
 
     private void OnRandomSeedChanged(ChangeEventArgs e)
     {
-        this.randomSeed = int.Parse(e.Value?.ToString() ?? "0");
-        StartClustering();
+        if (int.TryParse(e.Value?.ToString() ?? "0", out int parsed))
+        {
+            this.randomSeed = Math.Clamp(parsed, MIN_RNG_SEED, MAX_RNG_SEED);
+            StartClustering();
+        }
     }
 
     private void StartClustering()
