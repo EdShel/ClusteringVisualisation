@@ -62,14 +62,14 @@ button[b-rpklbg6bgq] {
     button:active[b-rpklbg6bgq] {
         background-color: #017fb4;
     }
-/* /Shared/ClusteringChart.razor.rz.scp.css */
-.chart-area[b-u0u54va0av] {
+/* /Shared/KMeansClustering.razor.rz.scp.css */
+.chart-area[b-lymw5o4dsj] {
     position: relative;
     width: 100%;
     height: 100%;
 }
 
-.toolbox[b-u0u54va0av] {
+.toolbox[b-lymw5o4dsj] {
     position: absolute;
     top: 5px;
     left: 5px;
@@ -79,25 +79,25 @@ button[b-rpklbg6bgq] {
     transition: opacity ease-out .25s;
 }
 
-    .toolbox button[b-u0u54va0av] {
+    .toolbox button[b-lymw5o4dsj] {
         border: 0;
         background-color: #0075ff;
         color: #fff;
         margin: 0 4px;
     }
 
-.toolbox:hover[b-u0u54va0av] {
+.toolbox:hover[b-lymw5o4dsj] {
     opacity: 1;
 }
 
-.status-box[b-u0u54va0av] {
+.status-box[b-lymw5o4dsj] {
     position: absolute;
     bottom: 5px;
     left: 5px;
     z-index: 1;
 }
 
-.points-container[b-u0u54va0av] {
+.points-container[b-lymw5o4dsj] {
     width: 100%;
     height: 100%;
     background-color: #ffffff;
@@ -111,24 +111,24 @@ button[b-rpklbg6bgq] {
     user-select: none;
 }
 
-.point[b-u0u54va0av] {
+.point[b-lymw5o4dsj] {
     position: absolute;
     width: 8px;
     height: 8px;
     background: red;
     border-radius: 4px;
     transform: scale(0);
-    animation: pointAppear-b-u0u54va0av 1s linear forwards;
+    animation: pointAppear-b-lymw5o4dsj 1s linear forwards;
     transition: left 2s, top 2s;
 }
 
-.point.cluster-center[b-u0u54va0av] {
+.point.cluster-center[b-lymw5o4dsj] {
     width: 16px;
     height: 16px;
     border-radius: 0;
 }
 
-@keyframes pointAppear-b-u0u54va0av {
+@keyframes pointAppear-b-lymw5o4dsj {
     0% {
         transform: scale(0);
     }
@@ -139,28 +139,29 @@ button[b-rpklbg6bgq] {
         transform: scale(1)
     }
 }
-/* /Shared/Dendrogram.razor.rz.scp.css */
-.box[b-i0i8xtyjbu] {
+/* /Shared/MainLayout.razor.rz.scp.css */
+/* /Shared/SingleLinkageClustering.razor.rz.scp.css */
+.box[b-256w5l5fhj] {
     position: relative;
     width: 100%;
     height: 100%;
 }
 
-.line[b-i0i8xtyjbu] {
+.line[b-256w5l5fhj] {
     position: absolute;
     background-color: #000000;
     transition: left 1s, bottom 1s;
 }
 
-.line.horizontal[b-i0i8xtyjbu] {
+.line.horizontal[b-256w5l5fhj] {
     height: 1px;
 }
 
-.line.vertical[b-i0i8xtyjbu] {
+.line.vertical[b-256w5l5fhj] {
     width: 1px;
 }
 
-.point[b-i0i8xtyjbu] {
+.point[b-256w5l5fhj] {
     position: absolute;
     background-color: #000000;
     width: 8px;
@@ -168,4 +169,3 @@ button[b-rpklbg6bgq] {
     border-radius: 4px;
     transform: translate(-4px, 0)
 }
-/* /Shared/MainLayout.razor.rz.scp.css */
