@@ -145,6 +145,7 @@ button[b-rpklbg6bgq] {
     position: relative;
     width: 100%;
     height: 100%;
+    border-left: 1px solid black;
 }
 
 .line[b-256w5l5fhj] {
@@ -168,4 +169,11 @@ button[b-rpklbg6bgq] {
     height: 8px;
     border-radius: 4px;
     transform: translate(-4px, 0)
+}
+
+.number[b-256w5l5fhj] {
+    position: absolute;
+    left: 0;
+    transform: translate(0, 1em);
+    border-top: 1px solid black;
 }
