@@ -134,7 +134,7 @@ namespace ClusteringVisualisation.Clustering.KMeans
                     }
                 }
                 // Note: this is a special case when the cluster center
-                //       has not points assigned to it.
+                //       has no points assigned to it.
                 //       So we don't move it.
                 if (pointsOfThisCluster != 0)
                 {
