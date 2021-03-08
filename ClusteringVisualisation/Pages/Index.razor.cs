@@ -35,7 +35,7 @@ namespace ClusteringVisualisation.Pages
         private void OnClusteringMethodChanged(ChangeEventArgs e)
         {
             this.methodIndex = int.Parse(e.Value?.ToString() ?? "0");
-            needToClusterAfterRender = true;
+            this.needToClusterAfterRender = true;
         }
 
         private void OnPointsCountChanged(ChangeEventArgs e)
@@ -83,7 +83,7 @@ namespace ClusteringVisualisation.Pages
         private void StartClustering()
         {
             var points = CreatePoints();
-            clusteringMethod.StartClustering(points);
+            this.clusteringMethod.StartClustering(points);
         }
 
         protected override void OnAfterRender(bool firstRender)

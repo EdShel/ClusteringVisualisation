@@ -85,7 +85,7 @@ namespace ClusteringVisualisation.Clustering.SingleLinkage
             ICluster firstCluster = this.clusters[firstIndex];
             ICluster secondCluster = this.clusters[secondIndex];
             ICluster commonCluster = new Cluster(
-                firstCluster, 
+                firstCluster,
                 secondCluster,
                 this.distanceMatrix[secondIndex][firstIndex]
             );
@@ -149,21 +149,21 @@ namespace ClusteringVisualisation.Clustering.SingleLinkage
             // Alternatively we can rebuild the whole distance matrix
             // from scratch, but this approach is much-much faster.
 
-            for(int i = 0; i < replaceClusterIndex; i++)
+            for (int i = 0; i < replaceClusterIndex; i++)
             {
                 this.distanceMatrix[replaceClusterIndex][i] = Math.Min(
                     this.distanceMatrix[replaceClusterIndex][i],
                     this.distanceMatrix[deleteClusterIndex][i]
                 );
             }
-            for(int i = replaceClusterIndex + 1; i < deleteClusterIndex; i++)
+            for (int i = replaceClusterIndex + 1; i < deleteClusterIndex; i++)
             {
                 this.distanceMatrix[i][replaceClusterIndex] = Math.Min(
                     this.distanceMatrix[i][replaceClusterIndex],
                     this.distanceMatrix[deleteClusterIndex][i]
                 );
             }
-            for(int i = deleteClusterIndex + 1; i < distanceMatrix.Count; i++)
+            for (int i = deleteClusterIndex + 1; i < this.distanceMatrix.Count; i++)
             {
                 this.distanceMatrix[i][replaceClusterIndex] = Math.Min(
                     this.distanceMatrix[i][replaceClusterIndex],
@@ -177,12 +177,11 @@ namespace ClusteringVisualisation.Clustering.SingleLinkage
         /// </summary>
         private void RemoveClusterFromDistanceMatrix(int clusterIndex)
         {
-            for(int i = clusterIndex + 1; i < this.distanceMatrix.Count; i++)
+            for (int i = clusterIndex + 1; i < this.distanceMatrix.Count; i++)
             {
                 this.distanceMatrix[i].RemoveAt(clusterIndex);
             }
             this.distanceMatrix.RemoveAt(clusterIndex);
         }
-
     }
 }
